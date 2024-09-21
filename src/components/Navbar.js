@@ -9,9 +9,6 @@ const Navbar = () => {
         <Button color="inherit" component={Link} to="/">
           Home
         </Button>
-        <Button color="inherit" component={Link} to="/search">
-          Search
-        </Button>
         <Button color="inherit" component={Link} to="/saved">
           Saved
         </Button>

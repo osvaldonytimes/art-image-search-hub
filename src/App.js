@@ -6,29 +6,23 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import Search from "./pages/Search";
-import Saved from "./pages/Saved";
-import Navbar from "./components/Navbar";
+import Search from "./pages/Search"; // Import the Search component
+import Navbar from "./components/Navbar"; // Import the Navbar component
 
 const App = () => {
   return (
     <Router>
-      <div>
-        <Navbar /> {/* Add the Navbar here */}
-        <Routes>
-          {/* Home (Root) */}
-          <Route path="/" element={<Home />} />
+      <Navbar /> {/* Include the Navbar */}
+      <Routes>
+        {/* Route for Home */}
+        <Route path="/" element={<Home />} />
 
-          {/* Search */}
-          <Route path="/search" element={<Search />} />
+        {/* Route for Search */}
+        <Route path="/search" element={<Search />} />
 
-          {/* Saved */}
-          <Route path="/saved" element={<Saved />} />
-
-          {/* Redirect any unknown paths to root */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </div>
+        {/* Redirect any unknown paths to home */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </Router>
   );
 };
