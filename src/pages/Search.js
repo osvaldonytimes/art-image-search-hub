@@ -69,7 +69,7 @@ const Search = () => {
     return response.data.data
       .filter((item) => item.image_id)
       .map((item) => ({
-        id: item.id,
+        id: item.id.toString(),
         title: item.title,
         imageUrl: `https://www.artic.edu/iiif/2/${item.image_id}/full/843,/0/default.jpg`,
         source: "Art Institute of Chicago",
@@ -85,7 +85,7 @@ const Search = () => {
     return response.data.records
       .filter((item) => item.primaryimageurl)
       .map((item) => ({
-        id: item.id,
+        id: item.id.toString(),
         title: item.title,
         imageUrl: item.primaryimageurl,
         source: "Harvard Art Museums",
@@ -127,6 +127,7 @@ const Search = () => {
                 imageUrl={item.imageUrl}
                 source={item.source}
                 sourceUrl={item.sourceUrl}
+                resultId={item.id}
               />
             ))}
           </Box>

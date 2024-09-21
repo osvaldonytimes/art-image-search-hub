@@ -5,6 +5,16 @@ import {
   signInWithPopup,
   signOut,
 } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  getDocs,
+} from "firebase/firestore";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -21,9 +31,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
 
-// Export Firebase authentication methods
+// Export Firebase authentication and Firestore methods
 const loginWithGoogle = () => signInWithPopup(auth, provider);
 const logout = () => signOut(auth);
 
-export { auth, loginWithGoogle, logout };
+export {
+  auth,
+  loginWithGoogle,
+  logout,
+  db,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  getDocs,
+};
