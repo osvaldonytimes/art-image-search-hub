@@ -1,10 +1,11 @@
 import React from "react";
+import { Typography, Box } from "@mui/material";
 
 const Saved = () => {
   return (
-    <div>
-      <h1>Saved Page</h1>
-    </div>
+    <Box p={3}>
+      <Typography variant="h4">Your Saved Items</Typography>
+    </Box>
   );
 };
 

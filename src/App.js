@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,24 +6,66 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import Search from "./pages/Search"; // Import the Search component
-import Navbar from "./components/Navbar"; // Import the Navbar component
+import Search from "./pages/Search";
+import Saved from "./pages/Saved";
+import Navbar from "./components/Navbar";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Snackbar, Alert } from "@mui/material";
+
+const PrivateRoute = ({ element }) => {
+  const { user } = useAuth();
+  const [snackbarOpen, setSnackbarOpen] = useState(!user);
+  const [redirect, setRedirect] = useState(false);
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+    setRedirect(true); // Trigger redirection after closing the Snackbar
+  };
+
+  if (!user && redirect) {
+    return <Navigate to="/" />; // Redirect after Snackbar has been closed
+  }
+
+  return (
+    <>
+      {!user && (
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={4000}
+          onClose={handleCloseSnackbar}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity="warning"
+            sx={{ width: "100%" }}
+          >
+            You must be logged in to access the Saved tab.
+          </Alert>
+        </Snackbar>
+      )}
+      {user ? element : null}{" "}
+      {/* Only render the element if user is logged in */}
+    </>
+  );
+};
 
 const App = () => {
   return (
-    <Router>
-      <Navbar /> {/* Include the Navbar */}
-      <Routes>
-        {/* Route for Home */}
-        <Route path="/" element={<Home />} />
-
-        {/* Route for Search */}
-        <Route path="/search" element={<Search />} />
-
-        {/* Redirect any unknown paths to home */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<Search />} />
+          <Route
+            path="/saved"
+            element={<PrivateRoute element={<Saved />} />}
+          />{" "}
+          {/* Protected route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 
