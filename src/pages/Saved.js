@@ -140,6 +140,14 @@ const Saved = () => {
           </SwiperSlide>
         ))}
       </Swiper>
+      <Button
+        variant="outlined"
+        fullWidth
+        sx={{ mt: 2 }}
+        onClick={() => navigate("/saved/all")}
+      >
+        See all saved images
+      </Button>
 
       <Box mt={4}>
         <Box
