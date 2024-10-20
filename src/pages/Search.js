@@ -50,12 +50,7 @@ const Search = () => {
           setSnackbarOpen(true);
         }
       });
-
-      if (apiResults.length === 0) {
-        setError(true);
-      } else {
-        setResults(apiResults);
-      }
+      setResults(apiResults);
     } catch (err) {
       setError(true);
     } finally {
@@ -126,7 +121,7 @@ const Search = () => {
           <Button variant="outlined" onClick={() => navigate("/")} mb={2}>
             Back
           </Button>
-          <Typography variant="h4" mb={2}>
+          <Typography variant="h5" mb={2}>
             Showing results for: {query}
           </Typography>
           <Box display="flex" flexWrap="wrap" gap={2}>
