@@ -18,6 +18,7 @@ import { useAuth } from "../context/AuthContext";
 import ArtCard from "../components/ArtCard";
 import Folder from "../components/Folder";
 import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
@@ -29,6 +30,7 @@ const Saved = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const navigate = useNavigate();
 
   const fetchRecentlySaved = useCallback(() => {
     if (!user) return;
@@ -118,11 +120,13 @@ const Saved = () => {
     setSnackbarOpen(false);
   };
 
+  const handleFolderClick = (folderId) => {
+    navigate(`/saved/folder/${folderId}`);
+  };
+
   return (
     <Box p={3}>
-      <Typography variant="h4" mb={2}>
-        Recently Saved
-      </Typography>
+      <Typography variant="h5">Recently Saved</Typography>
       <Swiper spaceBetween={10} slidesPerView={"auto"}>
         {recentlySaved.map((item) => (
           <SwiperSlide key={item.id} style={{ width: "300px" }}>
@@ -156,6 +160,7 @@ const Saved = () => {
               id={folder.id}
               name={folder.name}
               imageCount={folder.images.length}
+              onClick={() => handleFolderClick(folder.id)}
             />
           ))
         ) : (

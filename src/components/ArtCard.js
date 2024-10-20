@@ -39,6 +39,7 @@ const ArtCard = ({
   sourceUrl,
   resultId,
   onUpdateFolders,
+  onRemove,
 }) => {
   const { user } = useAuth();
   const [saved, setSaved] = useState(false);
@@ -142,6 +143,10 @@ const ArtCard = ({
       setSaved(false);
       setDialogOpen(false);
       setUnsaveDialogOpen(false);
+      // Call the onRemove function if it exists
+      if (onRemove) {
+        onRemove(resultId);
+      }
     } catch (error) {
       console.error("Error removing saved result:", error);
     }
@@ -169,7 +174,10 @@ const ArtCard = ({
         await updateDoc(folderRef, {
           images: arrayRemove(resultId),
         });
-
+        // If the image was removed from the current folder, call the onRemove function
+        if (folderId === folderId && onRemove) {
+          onRemove(resultId);
+        }
         // Update the folders state to reflect the new image count
         setFolders((prevFolders) =>
           prevFolders.map((folder) =>

@@ -8,6 +8,7 @@ import {
 import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Saved from "./pages/Saved";
+import FolderView from "./pages/FolderView";
 import Navbar from "./components/Navbar";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Snackbar, Alert } from "@mui/material";
@@ -62,6 +63,7 @@ const App = () => {
             element={<PrivateRoute element={<Saved />} />}
           />{" "}
           {/* Protected route */}
+          <Route path="/saved/folder/:folderId" element={<FolderView />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

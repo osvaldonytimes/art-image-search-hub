@@ -17,7 +17,7 @@ import { db, doc, updateDoc } from "../firebase";
 import { deleteDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
-const Folder = ({ id, name, imageCount }) => {
+const Folder = ({ id, name, imageCount, onClick }) => {
   const { user } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -40,7 +40,7 @@ const Folder = ({ id, name, imageCount }) => {
 
   const handleRenameDialogClose = () => {
     setRenameDialogOpen(false);
-    setNewName(name); // Reset to original name on close
+    setNewName(name);
   };
 
   const handleDeleteDialogOpen = () => {
@@ -85,8 +85,10 @@ const Folder = ({ id, name, imageCount }) => {
       p={1}
       border={1}
       borderRadius={2}
+      onClick={onClick} // Attach the onClick event here
+      sx={{ cursor: "pointer" }} // Change the cursor to indicate the element is clickable
     >
-      <Box display="flex" flexDirection="column" flexGrow={1}>
+      <Box>
         <Typography variant="body1">{name}</Typography>
         <Typography variant="body2" color="textSecondary">
           {imageCount === 0
@@ -96,7 +98,12 @@ const Folder = ({ id, name, imageCount }) => {
             : `${imageCount} images`}
         </Typography>
       </Box>
-      <IconButton onClick={handleMenuOpen}>
+      <IconButton
+        onClick={(e) => {
+          e.stopPropagation();
+          handleMenuOpen(e);
+        }}
+      >
         <MoreVertIcon />
       </IconButton>
       <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
