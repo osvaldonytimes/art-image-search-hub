@@ -16,6 +16,7 @@ import {
   FormControlLabel,
   Box,
   TextField,
+  IconButton,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -29,6 +30,7 @@ import {
 } from "../firebase";
 import { deleteDoc, arrayRemove, getDoc } from "firebase/firestore";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import CloseIcon from "@mui/icons-material/Close";
 
 const ArtCard = ({
   title,
@@ -48,6 +50,7 @@ const ArtCard = ({
   const [unsaveDialogOpen, setUnsaveDialogOpen] = useState(false);
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [fullScreenOpen, setFullScreenOpen] = useState(false);
 
   const fetchFolders = useCallback(async () => {
     if (!user) return;
@@ -250,6 +253,14 @@ const ArtCard = ({
     }
   }, [saved, folders, user, resultId]);
 
+  const handleOpenFullScreen = () => {
+    setFullScreenOpen(true);
+  };
+
+  const handleCloseFullScreen = () => {
+    setFullScreenOpen(false);
+  };
+
   return (
     <Card
       sx={{
@@ -260,7 +271,14 @@ const ArtCard = ({
       }}
     >
       {imageUrl && (
-        <CardMedia component="img" height="200" image={imageUrl} alt={title} />
+        <CardMedia
+          component="img"
+          height="200"
+          image={imageUrl}
+          alt={title}
+          onClick={handleOpenFullScreen}
+          sx={{ cursor: "pointer" }} // Makes it clear that the image is clickable
+        />
       )}
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography
@@ -317,6 +335,32 @@ const ArtCard = ({
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
+      {/* Full Screen Image Dialog */}
+      <Dialog
+        open={fullScreenOpen}
+        onClose={handleCloseFullScreen}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          {title}
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseFullScreen}
+            sx={{ position: "absolute", right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <img
+            src={imageUrl}
+            alt={title}
+            style={{ width: "100%", height: "auto" }}
+          />
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>
