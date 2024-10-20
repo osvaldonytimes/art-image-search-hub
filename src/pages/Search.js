@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  Button,
 } from "@mui/material";
 import axios from "axios";
 import ArtCard from "../components/ArtCard";
@@ -111,11 +112,20 @@ const Search = () => {
           <CircularProgress />
         </Box>
       ) : error ? (
-        <Typography variant="h4">
-          An error occurred while fetching the results. Please try again later.
-        </Typography>
+        <>
+          <Button variant="outlined" onClick={() => navigate("/")} mb={2}>
+            Back
+          </Button>
+          <Typography variant="h4">
+            An error occurred while fetching the results. Please try again
+            later.
+          </Typography>
+        </>
       ) : (
         <>
+          <Button variant="outlined" onClick={() => navigate("/")} mb={2}>
+            Back
+          </Button>
           <Typography variant="h4" mb={2}>
             Showing results for: {query}
           </Typography>
