@@ -37,6 +37,7 @@ const Search = () => {
     const apiRequests = [
       fetchArtInstitute(query),
       fetchHarvardArtMuseums(query),
+      fetchMetMuseum(query), // Add the MET Museum API request
     ];
 
     try {
@@ -89,6 +90,40 @@ const Search = () => {
           item.url ||
           `https://www.harvardartmuseums.org/collections/object/${item.id}`,
       }));
+  };
+
+  const fetchMetMuseum = async (query) => {
+    try {
+      // Fetch object IDs matching the query
+      const searchResponse = await axios.get(
+        `https://collectionapi.metmuseum.org/public/collection/v1/search?q=${query}&hasImages=true`
+      );
+
+      if (searchResponse.data.objectIDs) {
+        const objectIds = searchResponse.data.objectIDs.slice(0, 10); // Limit to 10 results for simplicity
+        const objectDetailsPromises = objectIds.map((id) =>
+          axios.get(
+            `https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`
+          )
+        );
+
+        const objectsResponses = await Promise.all(objectDetailsPromises);
+        return objectsResponses
+          .map((response) => response.data)
+          .filter((item) => item.primaryImage) // Filter items that have a primary image
+          .map((item) => ({
+            id: item.objectID.toString(),
+            title: item.title,
+            imageUrl: item.primaryImage,
+            source: "The MET Museum",
+            sourceUrl: `https://www.metmuseum.org/art/collection/search/${item.objectID}`,
+          }));
+      }
+      return [];
+    } catch (error) {
+      console.error("Error fetching MET Museum data:", error);
+      throw error;
+    }
   };
 
   const handleCloseSnackbar = () => {
