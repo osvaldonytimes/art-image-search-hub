@@ -18,6 +18,8 @@ import {
   TextField,
   IconButton,
 } from "@mui/material";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useAuth } from "../context/AuthContext";
 import {
   db,
@@ -276,6 +278,7 @@ const ArtCard = ({
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        position: "relative",
       }}
     >
       {imageUrl && (
@@ -284,46 +287,51 @@ const ArtCard = ({
           height="200"
           image={imageUrl}
           alt={title}
-          onClick={handleOpenFullScreen}
-          sx={{ cursor: "pointer" }} // Makes it clear that the image is clickable
+          onClick={() => setFullScreenOpen(true)}
+          sx={{ cursor: "pointer" }}
         />
       )}
-      <CardContent sx={{ flexGrow: 1 }}>
+      <CardContent>
         <Typography
-          variant="h6"
+          variant="h7"
           sx={{
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
+            height: "2.5em",
           }}
         >
           {title}
         </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Source: {source}
-        </Typography>
-      </CardContent>
-      <CardActions sx={{ justifyContent: "space-between" }}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={saved ? handleOpenDialog : handleSave}
-        >
-          {saved ? "Saved" : "Save"}
-        </Button>
-        <Button
-          variant="contained"
-          size="small"
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          component="a"
           href={sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          endIcon={<OpenInNewIcon />}
+          sx={{
+            textDecoration: "none",
+            color: "text.secondary",
+            cursor: "pointer",
+          }}
         >
-          View
-        </Button>
-      </CardActions>
+          {source}
+        </Typography>
+      </CardContent>
+      <IconButton
+        onClick={saved ? handleOpenDialog : handleSave}
+        color="primary"
+        sx={{
+          position: "absolute",
+          bottom: 8,
+          right: 8,
+        }}
+      >
+        {saved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+      </IconButton>
 
       <Snackbar
         open={snackbarOpen}
@@ -333,7 +341,14 @@ const ArtCard = ({
         <Alert
           onClose={handleCloseSnackbar}
           severity="success"
-          sx={{ width: "100%" }}
+          sx={{
+            width: "100%",
+            bgcolor: "grey.900",
+            color: "grey.100",
+          }}
+          iconMapping={{
+            success: <span style={{ color: "white" }}>✔</span>,
+          }}
           action={
             <Button color="inherit" size="small" onClick={handleOpenDialog}>
               Add to Folder
@@ -418,7 +433,9 @@ const ArtCard = ({
           ))}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Done</Button>
+          <Button onClick={handleCloseDialog} variant="contained">
+            Done
+          </Button>
         </DialogActions>
       </Dialog>
 
