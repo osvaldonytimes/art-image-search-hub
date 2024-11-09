@@ -8,7 +8,9 @@ import {
   List,
   ListItem,
   ListItemText,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,42 +26,36 @@ const Home = () => {
 
   const handleSearch = () => {
     if (searchTerm.trim().length >= 3) {
-      // Save the search term to local storage
       updateRecentSearches(searchTerm);
-
-      // Navigate to the search page with the search term
       navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
     }
   };
 
   const handleRecentSearchClick = (query) => {
     setSearchTerm(query);
-
-    // Navigate to the search page with the selected query
     navigate(`/search?query=${encodeURIComponent(query)}`);
-
-    // Update recent searches order
     updateRecentSearches(query);
   };
 
   const updateRecentSearches = (query) => {
-    // Retrieve existing searches from local storage
     let searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
-
-    // Remove the query if it already exists to avoid duplication
     searches = searches.filter((search) => search !== query);
-
-    // Add the new search term at the beginning of the array
     searches.unshift(query);
-
-    // Limit to the last 10 searches
-    if (searches.length > 10) {
-      searches = searches.slice(0, 10);
-    }
-
-    // Update local storage and state
+    if (searches.length > 10) searches = searches.slice(0, 10);
     localStorage.setItem("recentSearches", JSON.stringify(searches));
     setRecentSearches(searches);
+  };
+
+  const handleDeleteRecentSearch = (query) => {
+    const updatedSearches = recentSearches.filter((search) => search !== query);
+    localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+    setRecentSearches(updatedSearches);
+  };
+
+  const handleEnterKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   return (
@@ -67,36 +63,74 @@ const Home = () => {
       display="flex"
       flexDirection="column"
       alignItems="center"
-      justifyContent="center"
-      height="100vh"
+      sx={{
+        height: "100vh",
+        px: { xs: 2, sm: 4, md: 8 },
+        py: { xs: 4, sm: 6, md: 10 },
+      }}
     >
-      <TextField
-        label="Search"
-        variant="outlined"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        helperText={searchTerm.length < 3 ? "Enter at least 3 characters" : ""}
-      />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSearch}
-        disabled={searchTerm.length < 3}
-        style={{ marginTop: "20px" }}
+      <Typography variant="h4" mb={2} textAlign="center">
+        Discover Art Across the World
+      </Typography>
+      <Typography variant="body1" mb={4} textAlign="center">
+        Use this app to search and explore artwork from a wide range of renowned
+        museums and galleries.
+      </Typography>
+
+      <Box
+        display="flex"
+        alignItems="center"
+        width="100%"
+        maxWidth="600px"
+        mb={3}
       >
-        Search
-      </Button>
+        <TextField
+          placeholder="Search for artists, works, or museums"
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyPress={handleEnterKeyPress}
+          fullWidth
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSearch}
+          disabled={searchTerm.length < 3}
+          sx={{
+            ml: 2,
+            height: "100%", // Match button height to input
+            fontWeight: "bold", // Make font bold
+          }}
+        >
+          Search
+        </Button>
+      </Box>
+
       {recentSearches.length > 0 && (
-        <Box mt={4} width="100%" maxWidth="400px">
-          <Typography variant="h6">Recent Searches</Typography>
+        <Box width="100%" maxWidth="600px">
+          <Typography variant="h6" mb={1}>
+            Recent Searches
+          </Typography>
           <List>
             {recentSearches.map((search, index) => (
               <ListItem
-                button
                 key={index}
-                onClick={() => handleRecentSearchClick(search)}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => handleDeleteRecentSearch(search)}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                }
               >
-                <ListItemText primary={search} />
+                <ListItemText
+                  primary={search}
+                  onClick={() => handleRecentSearchClick(search)}
+                  sx={{ cursor: "pointer" }}
+                />
               </ListItem>
             ))}
           </List>
