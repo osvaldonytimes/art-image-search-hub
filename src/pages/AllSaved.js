@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { db, collection, doc } from "../firebase";
 import { onSnapshot, deleteDoc } from "firebase/firestore";
@@ -10,9 +10,14 @@ const AllSaved = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [savedImages, setSavedImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchSavedImages = () => {
+      setLoading(true);
+      setError(false);
+
       if (!user) return;
 
       const savedResultsCollection = collection(
@@ -22,15 +27,22 @@ const AllSaved = () => {
         "savedResults"
       );
 
-      const unsubscribe = onSnapshot(savedResultsCollection, (snapshot) => {
-        const savedResults = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setSavedImages(savedResults);
-      });
+      try {
+        const unsubscribe = onSnapshot(savedResultsCollection, (snapshot) => {
+          const savedResults = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setSavedImages(savedResults);
+          setLoading(false);
+        });
 
-      return unsubscribe;
+        return unsubscribe;
+      } catch (error) {
+        console.error("Error fetching saved images:", error);
+        setError(true);
+        setLoading(false);
+      }
     };
 
     const unsubscribe = fetchSavedImages();
@@ -54,35 +66,58 @@ const AllSaved = () => {
   };
 
   return (
-    <Box p={3}>
-      <Button variant="outlined" onClick={() => navigate("/saved")} mb={2}>
-        Back
-      </Button>
-      <Typography variant="h4" mb={2}>
-        All Saved Images
-      </Typography>
-      {savedImages.length === 0 ? (
-        <Typography variant="body2" color="textSecondary">
-          No saved images found.
-        </Typography>
-      ) : (
+    <Box
+      sx={{
+        px: { xs: 2, sm: 4, md: 8 },
+        pt: 6,
+      }}
+    >
+      {loading ? (
         <Box
-          display="grid"
-          gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))"
-          gap={2}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
         >
-          {savedImages.map((image) => (
-            <ArtCard
-              key={image.id}
-              title={image.title}
-              imageUrl={image.imageUrl}
-              source={image.source}
-              sourceUrl={image.sourceUrl}
-              resultId={image.id}
-              onRemove={handleImageRemove}
-            />
-          ))}
+          <CircularProgress />
         </Box>
+      ) : (
+        <>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/saved")}
+            sx={{ mb: 2 }}
+          >
+            Back
+          </Button>
+          <Typography variant="h6" mb={2}>
+            All Saved Images
+          </Typography>
+          {error ? (
+            <Typography variant="body2" color="textSecondary">
+              An error occurred while fetching your saved images. Please try
+              again later.{" "}
+            </Typography>
+          ) : savedImages.length === 0 ? (
+            <Typography variant="body2" color="textSecondary">
+              No saved images found.
+            </Typography>
+          ) : (
+            <Box display="flex" flexWrap="wrap" gap={2}>
+              {savedImages.map((image) => (
+                <ArtCard
+                  key={image.id}
+                  title={image.title}
+                  imageUrl={image.imageUrl}
+                  source={image.source}
+                  sourceUrl={image.sourceUrl}
+                  resultId={image.id}
+                  onRemove={handleImageRemove}
+                />
+              ))}
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );
