@@ -13,6 +13,8 @@ import AllSaved from "./pages/AllSaved";
 import Navbar from "./components/Navbar";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Snackbar, Alert } from "@mui/material";
+import theme from "./theme";
+import { ThemeProvider } from "@mui/material/styles";
 
 const PrivateRoute = ({ element }) => {
   const { user } = useAuth();
@@ -53,22 +55,24 @@ const PrivateRoute = ({ element }) => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<Search />} />
-          <Route
-            path="/saved"
-            element={<PrivateRoute element={<Saved />} />}
-          />{" "}
-          <Route path="/saved/folder/:folderId" element={<FolderView />} />
-          <Route path="/saved/all" element={<AllSaved />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        <Router>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/search" element={<Search />} />
+            <Route
+              path="/saved"
+              element={<PrivateRoute element={<Saved />} />}
+            />{" "}
+            <Route path="/saved/folder/:folderId" element={<FolderView />} />
+            <Route path="/saved/all" element={<AllSaved />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
