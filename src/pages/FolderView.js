@@ -104,6 +104,9 @@ const FolderView = () => {
           >
             Back
           </Button>
+          <Typography variant="h6" mb={2}>
+            {folder.name}
+          </Typography>
           {error ? (
             <Typography variant="body2" color="textSecondary">
               An error occurred while fetching this folder. Please try again
@@ -112,9 +115,6 @@ const FolderView = () => {
           ) : (
             folder && (
               <>
-                <Typography variant="h6" mb={2}>
-                  {folder.name}
-                </Typography>
                 {folderImages.length === 0 ? (
                   <Typography variant="body2" color="textSecondary">
                     This folder is empty. Add some images to see them here.
