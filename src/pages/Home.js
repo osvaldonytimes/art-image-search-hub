@@ -109,7 +109,7 @@ const Home = () => {
 
       {recentSearches.length > 0 && (
         <Box width="100%" maxWidth="600px">
-          <Typography variant="h6" mb={1}>
+          <Typography variant="h6" mb={2}>
             Recent Searches
           </Typography>
           <List>

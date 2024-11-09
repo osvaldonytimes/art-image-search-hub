@@ -125,8 +125,15 @@ const Saved = () => {
   };
 
   return (
-    <Box p={3}>
-      <Typography variant="h5">Recently Saved</Typography>
+    <Box
+      sx={{
+        px: { xs: 2, sm: 4, md: 8 },
+        pt: 6,
+      }}
+    >
+      <Typography variant="h6" mb={2}>
+        Recently Saved
+      </Typography>
       <Swiper spaceBetween={10} slidesPerView={"auto"}>
         {recentlySaved.map((item) => (
           <SwiperSlide key={item.id} style={{ width: "300px" }}>
@@ -156,7 +163,9 @@ const Saved = () => {
           alignItems="center"
           mb={2}
         >
-          <Typography variant="h5">Folders</Typography>
+          <Typography variant="h6" mb={2}>
+            Folders
+          </Typography>
           <IconButton onClick={handleOpenDialog}>
             <AddIcon />
           </IconButton>

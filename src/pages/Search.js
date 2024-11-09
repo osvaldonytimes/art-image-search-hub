@@ -197,43 +197,6 @@ const Search = () => {
         >
           <CircularProgress />
         </Box>
-      ) : error ? (
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          height="100vh"
-        >
-          <Button
-            variant="outlined"
-            onClick={() => navigate("/")}
-            sx={{ mb: 2 }}
-          >
-            Back
-          </Button>
-          <Typography variant="h6" color="error" textAlign="center">
-            An error occurred while fetching the results. Please try again
-            later.
-          </Typography>
-        </Box>
-      ) : results.length === 0 ? (
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          height="100vh"
-        >
-          <Button
-            variant="outlined"
-            onClick={() => navigate("/")}
-            sx={{ mb: 2 }}
-          >
-            Back
-          </Button>
-          <Typography variant="h6" textAlign="center">
-            No results found for: {query}
-          </Typography>
-        </Box>
       ) : (
         <>
           <Button
@@ -244,20 +207,31 @@ const Search = () => {
             Back
           </Button>
           <Typography variant="h6" mb={2}>
-            Showing results for: {query}
+            Search: {query}
           </Typography>
-          <Box display="flex" flexWrap="wrap" gap={2}>
-            {results.map((item) => (
-              <ArtCard
-                key={item.id}
-                title={item.title}
-                imageUrl={item.imageUrl}
-                source={item.source}
-                sourceUrl={item.sourceUrl}
-                resultId={item.id}
-              />
-            ))}
-          </Box>
+          {error ? (
+            <Typography variant="body2" color="textSecondary">
+              An error occurred while fetching the results. Please try again
+              later.{" "}
+            </Typography>
+          ) : results.length === 0 ? (
+            <Typography variant="body2" color="textSecondary">
+              No results found for: {query}
+            </Typography>
+          ) : (
+            <Box display="flex" flexWrap="wrap" gap={2}>
+              {results.map((item) => (
+                <ArtCard
+                  key={item.id}
+                  title={item.title}
+                  imageUrl={item.imageUrl}
+                  source={item.source}
+                  sourceUrl={item.sourceUrl}
+                  resultId={item.id}
+                />
+              ))}
+            </Box>
+          )}
         </>
       )}
     </Box>
