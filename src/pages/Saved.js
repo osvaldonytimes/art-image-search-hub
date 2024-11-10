@@ -8,7 +8,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   Snackbar,
   Alert,
   CircularProgress,
@@ -199,9 +198,9 @@ const Saved = () => {
                   <Typography variant="h6" mb={2}>
                     Folders
                   </Typography>
-                  <IconButton onClick={handleOpenDialog}>
-                    <AddIcon />
-                  </IconButton>
+                  <Button variant="outlined" onClick={handleOpenDialog}>
+                    New Folder
+                  </Button>
                 </Box>
                 <Box
                   display="grid"
