@@ -105,7 +105,7 @@ const FolderView = () => {
             Back
           </Button>
           <Typography variant="h6" mb={2}>
-            {folder.name}
+            {folder?.name}
           </Typography>
           {error ? (
             <Typography variant="body2" color="textSecondary">

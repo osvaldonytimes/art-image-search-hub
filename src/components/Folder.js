@@ -26,33 +26,40 @@ const Folder = ({ id, name, imageCount, onClick }) => {
   const [newName, setNewName] = useState(name);
 
   const handleMenuOpen = (event) => {
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (event) => {
+    event.stopPropagation();
     setAnchorEl(null);
   };
 
-  const handleRenameDialogOpen = () => {
+  const handleRenameDialogOpen = (event) => {
+    event.stopPropagation();
     setRenameDialogOpen(true);
-    handleMenuClose();
+    handleMenuClose(event);
   };
 
-  const handleRenameDialogClose = () => {
+  const handleRenameDialogClose = (event) => {
+    event.stopPropagation();
     setRenameDialogOpen(false);
     setNewName(name);
   };
 
-  const handleDeleteDialogOpen = () => {
+  const handleDeleteDialogOpen = (event) => {
+    event.stopPropagation();
     setDeleteDialogOpen(true);
-    handleMenuClose();
+    handleMenuClose(event);
   };
 
-  const handleDeleteDialogClose = () => {
+  const handleDeleteDialogClose = (event) => {
+    event.stopPropagation();
     setDeleteDialogOpen(false);
   };
 
-  const handleRenameFolder = async () => {
+  const handleRenameFolder = async (event) => {
+    event.stopPropagation();
     if (newName.trim().length === 0) return;
 
     try {
@@ -66,7 +73,8 @@ const Folder = ({ id, name, imageCount, onClick }) => {
     }
   };
 
-  const handleDeleteFolder = async () => {
+  const handleDeleteFolder = async (event) => {
+    event.stopPropagation();
     try {
       const folderRef = doc(db, "users", user.uid, "folders", id);
       await deleteDoc(folderRef);
@@ -85,8 +93,8 @@ const Folder = ({ id, name, imageCount, onClick }) => {
       p={1}
       border={1}
       borderRadius={2}
-      onClick={onClick} // Attach the onClick event here
-      sx={{ cursor: "pointer" }} // Change the cursor to indicate the element is clickable
+      onClick={onClick}
+      sx={{ cursor: "pointer", width: "200px" }} // Reduced width
     >
       <Box>
         <Typography variant="body1">{name}</Typography>
@@ -98,12 +106,7 @@ const Folder = ({ id, name, imageCount, onClick }) => {
             : `${imageCount} images`}
         </Typography>
       </Box>
-      <IconButton
-        onClick={(e) => {
-          e.stopPropagation();
-          handleMenuOpen(e);
-        }}
-      >
+      <IconButton onClick={handleMenuOpen}>
         <MoreVertIcon />
       </IconButton>
       <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
@@ -112,7 +115,11 @@ const Folder = ({ id, name, imageCount, onClick }) => {
       </Menu>
 
       {/* Rename Folder Dialog */}
-      <Dialog open={renameDialogOpen} onClose={handleRenameDialogClose}>
+      <Dialog
+        open={renameDialogOpen}
+        onClose={handleRenameDialogClose}
+        onClick={(e) => e.stopPropagation()}
+      >
         <DialogTitle>Rename Folder</DialogTitle>
         <DialogContent>
           <TextField
@@ -138,7 +145,11 @@ const Folder = ({ id, name, imageCount, onClick }) => {
       </Dialog>
 
       {/* Delete Folder Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={handleDeleteDialogClose}>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteDialogClose}
+        onClick={(e) => e.stopPropagation()}
+      >
         <DialogTitle>Delete Folder</DialogTitle>
         <DialogContent>
           <Typography>Are you sure you want to delete this folder?</Typography>

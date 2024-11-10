@@ -11,6 +11,7 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { db, collection, setDoc, doc } from "../firebase";
 import { onSnapshot } from "firebase/firestore";
@@ -30,6 +31,8 @@ const Saved = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const fetchRecentlySaved = useCallback(() => {
@@ -64,9 +67,8 @@ const Saved = () => {
       const fetchedFolders = snapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
-        images: doc.data().images || [], // Fetch the images array for each folder
+        images: doc.data().images || [],
       }));
-
       setFolders(fetchedFolders);
     });
 
@@ -76,9 +78,18 @@ const Saved = () => {
   useEffect(() => {
     let unsubscribeSaved;
     let unsubscribeFolders;
-    if (user) {
-      unsubscribeSaved = fetchRecentlySaved();
-      unsubscribeFolders = fetchFolders();
+    setLoading(true);
+    setError(false);
+    try {
+      if (user) {
+        unsubscribeSaved = fetchRecentlySaved();
+        unsubscribeFolders = fetchFolders();
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError(true);
+    } finally {
+      setLoading(false);
     }
     return () => {
       if (unsubscribeSaved) unsubscribeSaved();
@@ -131,94 +142,135 @@ const Saved = () => {
         pt: 6,
       }}
     >
-      <Typography variant="h6" mb={2}>
-        Recently Saved
-      </Typography>
-      <Swiper spaceBetween={10} slidesPerView={"auto"}>
-        {recentlySaved.map((item) => (
-          <SwiperSlide key={item.id} style={{ width: "300px" }}>
-            <ArtCard
-              title={item.title}
-              imageUrl={item.imageUrl}
-              source={item.source}
-              sourceUrl={item.sourceUrl}
-              resultId={item.id}
-            />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-      <Button
-        variant="outlined"
-        fullWidth
-        sx={{ mt: 2 }}
-        onClick={() => navigate("/saved/all")}
-      >
-        See all saved images
-      </Button>
-
-      <Box mt={4}>
+      {loading ? (
         <Box
           display="flex"
-          justifyContent="space-between"
+          justifyContent="center"
           alignItems="center"
-          mb={2}
+          height="100vh"
         >
-          <Typography variant="h6" mb={2}>
-            Folders
-          </Typography>
-          <IconButton onClick={handleOpenDialog}>
-            <AddIcon />
-          </IconButton>
+          <CircularProgress />
         </Box>
-        {folders.length > 0 ? (
-          folders.map((folder) => (
-            <Folder
-              key={folder.id}
-              id={folder.id}
-              name={folder.name}
-              imageCount={folder.images.length}
-              onClick={() => handleFolderClick(folder.id)}
-            />
-          ))
-        ) : (
-          <Typography variant="body2">No folders created yet.</Typography>
-        )}
-
-        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-          <DialogTitle>Create Folder</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Folder Name"
-              fullWidth
-              variant="outlined"
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={handleCreateFolder} variant="contained">
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={4000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert
-            onClose={handleCloseSnackbar}
-            severity="success"
-            sx={{ width: "100%" }}
+      ) : (
+        <>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
           >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </Box>
+            <Typography variant="h6">Recently Saved</Typography>
+            <Button variant="outlined" onClick={() => navigate("/saved/all")}>
+              See all
+            </Button>
+          </Box>
+          {error ? (
+            <Typography variant="body2" color="textSecondary">
+              An error occurred while fetching your saved data. Please try again
+              later.
+            </Typography>
+          ) : (
+            <>
+              <Swiper
+                spaceBetween={10}
+                slidesPerView={"auto"}
+                style={{ padding: "1px 0" }}
+              >
+                {recentlySaved.map((item) => (
+                  <SwiperSlide key={item.id} style={{ width: "300px" }}>
+                    <ArtCard
+                      title={item.title}
+                      imageUrl={item.imageUrl}
+                      source={item.source}
+                      sourceUrl={item.sourceUrl}
+                      resultId={item.id}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              <Box mt={4}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                >
+                  <Typography variant="h6" mb={2}>
+                    Folders
+                  </Typography>
+                  <IconButton onClick={handleOpenDialog}>
+                    <AddIcon />
+                  </IconButton>
+                </Box>
+                <Box
+                  display="grid"
+                  gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
+                  gap={2}
+                >
+                  {folders.length > 0 ? (
+                    folders.map((folder) => (
+                      <Folder
+                        key={folder.id}
+                        id={folder.id}
+                        name={folder.name}
+                        imageCount={folder.images.length}
+                        onClick={() => handleFolderClick(folder.id)}
+                      />
+                    ))
+                  ) : (
+                    <Typography variant="body2">
+                      No folders created yet.
+                    </Typography>
+                  )}
+                </Box>
+
+                <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+                  <DialogTitle>Create Folder</DialogTitle>
+                  <DialogContent>
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      label="Folder Name"
+                      fullWidth
+                      variant="outlined"
+                      value={newFolderName}
+                      onChange={(e) => setNewFolderName(e.target.value)}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleCreateFolder} variant="contained">
+                      Save
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+
+                <Snackbar
+                  open={snackbarOpen}
+                  autoHideDuration={4000}
+                  onClose={handleCloseSnackbar}
+                >
+                  <Alert
+                    onClose={handleCloseSnackbar}
+                    severity="success"
+                    sx={{
+                      width: "100%",
+                      bgcolor: "grey.900",
+                      color: "grey.100",
+                    }}
+                    iconMapping={{
+                      success: <span style={{ color: "white" }}>✔</span>,
+                    }}
+                  >
+                    {snackbarMessage}
+                  </Alert>
+                </Snackbar>
+              </Box>
+            </>
+          )}
+        </>
+      )}
     </Box>
   );
 };
