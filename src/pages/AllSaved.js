@@ -108,6 +108,7 @@ const AllSaved = () => {
                 <ArtCard
                   key={image.id}
                   title={image.title}
+                  artist={image.artist}
                   imageUrl={image.imageUrl}
                   source={image.source}
                   sourceUrl={image.sourceUrl}

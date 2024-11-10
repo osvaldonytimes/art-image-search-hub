@@ -179,6 +179,7 @@ const Saved = () => {
                   <SwiperSlide key={item.id} style={{ width: "300px" }}>
                     <ArtCard
                       title={item.title}
+                      artist={item.artist}
                       imageUrl={item.imageUrl}
                       source={item.source}
                       sourceUrl={item.sourceUrl}
