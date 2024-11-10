@@ -5,7 +5,6 @@ import {
   Typography,
   CardMedia,
   Button,
-  CardActions,
   Snackbar,
   Alert,
   Dialog,
@@ -31,11 +30,11 @@ import {
   arrayUnion,
 } from "../firebase";
 import { deleteDoc, arrayRemove, getDoc } from "firebase/firestore";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CloseIcon from "@mui/icons-material/Close";
 
 const ArtCard = ({
   title,
+  artist,
   imageUrl,
   source,
   sourceUrl,
@@ -54,6 +53,7 @@ const ArtCard = ({
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [fullScreenOpen, setFullScreenOpen] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(true);
 
   const fetchFolders = useCallback(async () => {
     if (!user) return;
@@ -102,6 +102,7 @@ const ArtCard = ({
       const userDocRef = doc(db, "users", user.uid, "savedResults", resultId);
       await setDoc(userDocRef, {
         title,
+        artist,
         imageUrl,
         source,
         sourceUrl,
@@ -271,6 +272,14 @@ const ArtCard = ({
     setFullScreenOpen(false);
   };
 
+  const handleImageError = () => {
+    setImageLoaded(false);
+  };
+
+  if (!imageLoaded) {
+    return null;
+  }
+
   return (
     <Card
       sx={{
@@ -288,6 +297,7 @@ const ArtCard = ({
           image={imageUrl}
           alt={title}
           onClick={() => setFullScreenOpen(true)}
+          onError={handleImageError}
           sx={{ cursor: "pointer" }}
         />
       )}
@@ -298,12 +308,14 @@ const ArtCard = ({
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
-            WebkitLineClamp: 2,
+            WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",
-            height: "2.5em",
           }}
         >
           {title}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {artist}
         </Typography>
         <Typography
           variant="body2"
@@ -313,7 +325,6 @@ const ArtCard = ({
           target="_blank"
           rel="noopener noreferrer"
           sx={{
-            textDecoration: "none",
             color: "text.secondary",
             cursor: "pointer",
           }}
@@ -367,7 +378,12 @@ const ArtCard = ({
         fullWidth
       >
         <DialogTitle>
-          {title}
+          <div>
+            {title}
+            <Typography variant="body2" color="textSecondary">
+              {artist}
+            </Typography>
+          </div>
           <IconButton
             aria-label="close"
             onClick={handleCloseFullScreen}
