@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Box, Typography, CircularProgress, Button } from "@mui/material";
-import axios from "axios";
 import ArtCard from "../components/ArtCard";
+import {
+  fetchArtInstitute,
+  fetchClevelandMuseumOfArt,
+  fetchHarvardArtMuseums,
+  fetchMetMuseum,
+  fetchSmithsonianInstitution,
+  fetchVictoriaAndAlbertMuseum,
+} from "../sources/api";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
@@ -29,6 +36,9 @@ const Search = () => {
       fetchArtInstitute(query),
       fetchHarvardArtMuseums(query),
       fetchMetMuseum(query),
+      fetchClevelandMuseumOfArt(query),
+      fetchVictoriaAndAlbertMuseum(query),
+      fetchSmithsonianInstitution(query),
     ];
 
     try {
@@ -47,10 +57,10 @@ const Search = () => {
         const titleMatch = item.title
           .toLowerCase()
           .includes(query.toLowerCase());
-        const authorMatch = item.author
-          ? item.author.toLowerCase().includes(query.toLowerCase())
+        const artistMatch = item.artist
+          ? item.artist.toLowerCase().includes(query.toLowerCase())
           : false;
-        return titleMatch || authorMatch;
+        return titleMatch || artistMatch;
       });
 
       // Sort results by relevance in title (exact matches prioritized)
@@ -75,8 +85,8 @@ const Search = () => {
         }
 
         // If title matches are the same, prioritize by artist match if available
-        const aAuthor = a.author ? a.author.toLowerCase() : "";
-        const bAuthor = b.author ? b.author.toLowerCase() : "";
+        const aAuthor = a.artist ? a.artist.toLowerCase() : "";
+        const bAuthor = b.artist ? b.artist.toLowerCase() : "";
         const aAuthorMatch = aAuthor.includes(queryLower) ? 1 : 0;
         const bAuthorMatch = bAuthor.includes(queryLower) ? 1 : 0;
 
@@ -88,96 +98,6 @@ const Search = () => {
       setError(true);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchArtInstitute = async (query) => {
-    const response = await axios.get(
-      `https://api.artic.edu/api/v1/artworks/search`,
-      {
-        params: {
-          q: query,
-          fields: "id,title,image_id,artist_title", // Requesting artist_title along with id, title, and image_id
-        },
-      }
-    );
-    return response.data.data
-      .filter((item) => item.image_id)
-      .map((item) => {
-        // console.log("ArtInstitute", item);
-        return {
-          id: item.id.toString(),
-          title: item.title,
-          artist: item.artist_title,
-          imageUrl: `https://www.artic.edu/iiif/2/${item.image_id}/full/843,/0/default.jpg`,
-          source: "Art Institute of Chicago",
-          sourceUrl: `https://www.artic.edu/artworks/${item.id}`,
-        };
-      });
-  };
-
-  const fetchHarvardArtMuseums = async (query) => {
-    const apiKey = process.env.REACT_APP_HARVARD_API_KEY;
-    const response = await axios.get(
-      `https://api.harvardartmuseums.org/object?apikey=${apiKey}&title=${query}`
-    );
-    return response.data.records
-      .filter((item) => item.primaryimageurl)
-      .map((item) => {
-        // console.log('HarvardArtMuseums', item);
-        return {
-          id: item.id.toString(),
-          title: item.title,
-          artist: item.people ? item.people[0].name : "",
-          imageUrl: item.primaryimageurl,
-          source: "Harvard Art Museums",
-          sourceUrl:
-            item.url ||
-            `https://www.harvardartmuseums.org/collections/object/${item.id}`,
-        };
-      });
-  };
-
-  const fetchMetMuseum = async (query) => {
-    try {
-      const searchResponse = await axios.get(
-        `https://collectionapi.metmuseum.org/public/collection/v1/search`,
-        {
-          params: {
-            q: query,
-            hasImages: true,
-          },
-        }
-      );
-
-      if (searchResponse.data.objectIDs) {
-        const objectIds = searchResponse.data.objectIDs.slice(0, 10); // Limit to 10 results for simplicity
-        const objectDetailsPromises = objectIds.map((id) =>
-          axios.get(
-            `https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`
-          )
-        );
-
-        const objectsResponses = await Promise.all(objectDetailsPromises);
-        return objectsResponses
-          .map((response) => response.data)
-          .filter((item) => item.primaryImage)
-          .map((item) => {
-            // console.log("MET Museum", item);
-            return {
-              id: item.objectID.toString(),
-              title: item.title,
-              artist: item.artistDisplayName || "",
-              imageUrl: item.primaryImage,
-              source: "The MET Museum",
-              sourceUrl: `https://www.metmuseum.org/art/collection/search/${item.objectID}`,
-            };
-          });
-      }
-      return [];
-    } catch (error) {
-      console.error("Error fetching MET Museum data:", error);
-      throw error;
     }
   };
 
@@ -224,6 +144,7 @@ const Search = () => {
                 <ArtCard
                   key={item.id}
                   title={item.title}
+                  artist={item.artist}
                   imageUrl={item.imageUrl}
                   source={item.source}
                   sourceUrl={item.sourceUrl}
